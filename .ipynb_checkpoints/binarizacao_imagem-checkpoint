@@ -1,0 +1,62 @@
+import cv2
+import numpy as np
+
+# 1. Leitura e Conversão da Imagem
+# Carrega a imagem 'ponte.jpg' do disco.
+# A imagem é lida por padrão no formato BGR (Blue, Green, Red).
+img = cv2.imread('binarizar.jpg')
+
+# Verifica se a imagem foi carregada corretamente
+if img is None:
+    print("Erro ao carregar a imagem. Verifique o caminho 'ponte.jpg'.")
+    # Termina a execução se a imagem não for encontrada
+    exit() 
+
+# Converte a imagem BGR colorida para tons de cinza.
+img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+# 2. Aplicação de Suavização (Blur)
+# Aplica um filtro Gaussiano para suavizar a imagem em tons de cinza.
+# O kernel é (7, 7) e o desvio padrão em X (sigmaX) é 0 (calculado automaticamente).
+suave = cv2.GaussianBlur(img_gray, (7, 7), 0) # Aplica blur
+
+# 3. Limiarização (Binarização)
+# Aplica a limiarização binária simples na imagem suavizada:
+# - Pixels > 160 se tornam 255 (branco).
+# - Pixels <= 160 se tornam 0 (preto).
+T_bin, bin = cv2.threshold(suave, 160, 255, cv2.THRESH_BINARY)
+
+# Aplica a limiarização binária INVERSA (INVERTIDA):
+# - Pixels > 160 se tornam 0 (preto).
+# - Pixels <= 160 se tornam 255 (branco).
+T_binI, binI = cv2.threshold(suave, 160, 255, cv2.THRESH_BINARY_INV)
+
+# 4. Combinação e Visualização das Imagens
+# Cria uma imagem que exibe quatro resultados lado a lado, em duas linhas.
+
+# **Primeira Linha (np.hstack):**
+# Lado a lado: [Imagem Suavizada, Imagem Binarizada Padrão]
+linha1 = np.hstack([suave, bin])
+
+# **Segunda Linha (np.hstack):**
+# Lado a lado: [Imagem Binarizada Invertida, Operação Bitwise AND]
+# A operação bitwise_and aplica a imagem original colorida (img) 
+# como 'máscara' onde 'binI' (a imagem binarizada invertida) é branco (255).
+# Isso isola as partes da imagem original correspondentes à máscara 'binI'.
+operacao_and = cv2.bitwise_and(img, img, mask=binI)
+linha2 = np.hstack([binI, operacao_and])
+
+# **Empilhamento Vertical (np.vstack):**
+# Empilha a primeira linha sobre a segunda linha.
+resultado = np.vstack([linha1, linha2])
+
+# 5. Exibição e Espera
+# Exibe a imagem combinada na janela "Binarização da imagem".
+cv2.imshow("Binarização da imagem", resultado)
+
+# Espera indefinidamente por um pressionamento de tecla.
+# Isso mantém a janela aberta até que o usuário pressione uma tecla.
+cv2.waitKey(0)
+
+# Fecha todas as janelas abertas do OpenCV.
+cv2.destroyAllWindows()
