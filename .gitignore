@@ -1,0 +1,14 @@
+# Arquivos de Sistema
+.DS_Store # Arquivo do MacOS
+
+# Pastas de Ambientes Virtuais Python
+venv/
+env/
+
+# Arquivos de Cache e Build do Python
+__pycache__/
+*.pyc
+*.pyd
+
+# Pastas e Arquivos do Jupyter Notebook que devem ser ignorados
+.ipynb_checkpoints/ # <--- ESTE É O CRUCIAL
